@@ -1,36 +1,37 @@
 
+;;; i could make something a macro ... for scope ..?
+
 (defun play ()
   (let ((board (make-array '(3 3) :initial-element '_))
 	(turn 'X))
     (print-arr board)
     (do* ((row (read) (read)) (col (read) (read)))
 	 ((< row 0)
-	   (< col 0))
-      (when (move row col board turn) break)
-      (setf turn (flip turn))
+	  (< col 0))
+      (when (move row col board turn)
+	(setf turn (flip turn)))
       (print-arr board))))
 
 (defun flip (elem)
-    (cadr (assoc elem '((X O) (O X) (_ _)))))
+  (cadr (assoc elem '((X O) (O X) (_ _)))))
 
-;;; in case of invalid inputs, evaluate to no op
 (defun move (row col board turn)
   (let ((color (aref board row col)))
-    (if (equal color 'X)
-	nil
-	(setf (aref board row col) turn))))
+    (if (equal color '_)
+	(progn (setf (aref board row col) turn) t)
+	(format t "invalid move, retry~%"))))
 
 (defun print-arr (arr)
   (let ((last-dim (length (array-dimensions arr))))
     (labels ((arr-helper (coords cur-dim)
-      (if (equal cur-dim last-dim)
-        (format t "~A " (apply #'aref (cons arr (reverse coords))))
-        (progn
-          (dotimes (dim-val (array-dimension arr cur-dim))
-            (arr-helper (cons dim-val coords) (+ 1 cur-dim)))
-          (dotimes (x (- last-dim cur-dim))
-            (format t "~%"))))))
-     (arr-helper nil 0))))
+	       (if (equal cur-dim last-dim)
+		   (format t "~A " (apply #'aref (cons arr (reverse coords))))
+		   (progn
+		     (dotimes (dim-val (array-dimension arr cur-dim))
+		       (arr-helper (cons dim-val coords) (+ 1 cur-dim)))
+		     (dotimes (x (- last-dim cur-dim))
+		       (format t "~%"))))))
+      (arr-helper nil 0))))
 
 
 
