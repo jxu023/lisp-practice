@@ -1,21 +1,31 @@
 
 (defun play ()
   (let ((board (make-array '(3 3) :initial-element '_))
-	(turn 'X))
+	(turn 'X)
+	(row 0)
+	(col 0))
     (print-arr board)
-    (do* ((row (read) (read)) (col (read) (read)))
-	 ((< row 0)
-	  (< col 0))
-      (when (move row col board turn)
-	(setf turn (flip turn)))
-      (print-arr board))))
+    (loop while (not (terminalp board row col)) do
+      (progn (setf row (read))
+	     (setf col (read))
+	     (when (move row col board turn)
+	       (setf turn (flip turn)))
+	     (print-arr board)))
+    (format t "game over~%")))
 
 (defun flip (elem)
   (cadr (assoc elem '((X O) (O X) (_ _)))))
 
+(defun in-bounds (row col)
+  (and (>= row 0)
+       (>= col 0)
+       (< row 3)
+       (< col 3)))
+
 (defun move (row col board turn)
   (let ((color (aref board row col)))
-    (if (equal color '_)
+    (if (and (in-bounds row col)
+	     (equal color '_))
 	(progn (setf (aref board row col) turn) t)
 	(format t "invalid move, retry~%"))))
 
@@ -31,5 +41,16 @@
 		       (format t "~%"))))))
       (arr-helper nil 0))))
 
-(defun endp (board row col)
-  t)
+(defun terminalp (board row col)
+  (let ((color (aref board row col)))
+    (loop for (r c) in '((0 1) (1 1) (1 0)) do
+      (let ((length 1))
+	(loop for coeff in '(1 -1) do
+	  (let ((nr (+ row (* coeff r)))
+		(nc (+ col (* coeff c))))
+	    (when (and (in-bounds nr nc)
+		       (equal (aref board nr nc) color))
+	      (incf length))))
+	(when (= length 3)
+	  (return t)))))
+  nil)
