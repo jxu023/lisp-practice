@@ -14,7 +14,7 @@
     (format t "game over~%")))
 
 (defun flip (elem)
-  (cadr (assoc elem '((X O) (O X) (_ _)))))
+  (cadr (assoc elem '((X O) (O X)))))
 
 (defun in-bounds (row col)
   (and (>= row 0)
@@ -30,16 +30,10 @@
         (format t "invalid move, retry~%"))))
 
 (defun print-arr (arr)
-  (let ((last-dim (length (array-dimensions arr))))
-    (labels ((arr-helper (coords cur-dim)
-               (if (equal cur-dim last-dim)
-                   (format t "~A " (apply #'aref (cons arr (reverse coords))))
-                   (progn
-                     (dotimes (dim-val (array-dimension arr cur-dim))
-                       (arr-helper (cons dim-val coords) (+ 1 cur-dim)))
-                     (dotimes (x (- last-dim cur-dim))
-                       (format t "~%"))))))
-      (arr-helper nil 0))))
+  (dotimes (row 3)
+    (dotimes (col 3)
+      (format t "~A " (aref arr row col)))
+    (format t "~%")))
 
 (defun terminalp (board row col)
   (let ((color (aref board row col)))

@@ -17,6 +17,19 @@
     (format t "~%")))
 |#
 
+
+(defun print-arr (arr)
+  (let ((last-dim (length (array-dimensions arr))))
+    (labels ((arr-helper (coords cur-dim)
+               (if (equal cur-dim last-dim)
+                   (format t "~A " (apply #'aref (cons arr (reverse coords))))
+                   (progn
+                     (dotimes (dim-val (array-dimension arr cur-dim))
+                       (arr-helper (cons dim-val coords) (+ 1 cur-dim)))
+                     (dotimes (x (- last-dim cur-dim))
+                       (format t "~%"))))))
+      (arr-helper nil 0))))
+
 ;;; update game state
 ;;; linked list is not good for this, use an array
 
