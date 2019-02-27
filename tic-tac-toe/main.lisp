@@ -43,14 +43,29 @@
 
 (defun terminalp (board row col)
   (let ((color (aref board row col)))
-    (loop for (r c) in '((0 1) (1 1) (1 0)) do
+    (when (equal color '_)
+      (return-from terminalp nil))
+    (loop for (ur uc) in '((0 1) (1 1) (1 0) (1 -1)) do
       (let ((length 1))
         (loop for coeff in '(1 -1) do
-          (let ((nr (+ row (* coeff r)))
-                (nc (+ col (* coeff c))))
-            (when (and (in-bounds nr nc)
-                       (equal (aref board nr nc) color))
-              (incf length))))
-        (when (= length 3)
-          (return t)))))
+          (let ((dr (* coeff ur))
+                (dc (* coeff uc)))
+            (do ((nr (+ row dr) (+ nr dr))
+                 (nc (+ col dc) (+ nc dc)))
+                ((not (and (in-bounds nr nc)
+                           (equal color (aref board nr nc)))))
+              (incf length)))
+          (when (= length 3)
+            (return-from terminalp t))))))
   nil)
+
+(defun test-terminalp ()
+  (let ((board (make-array '(3 3) :initial-element '_)))
+    (setf (aref board 0 0) 'X)
+    (setf (aref board 0 1) 'X)
+    (setf (aref board 0 2) 'X)
+    (print-arr board)
+    (format t "~A~%"
+            (if (terminalp board 0 2)
+                "game over"
+                "continue"))))
