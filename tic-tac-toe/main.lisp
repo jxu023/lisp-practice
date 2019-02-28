@@ -1,4 +1,15 @@
 
+#|
+generate moves (state transitions)
+
+generate states to search
+
+categorize states
+
+generalize to wuziqi
+|#
+
+
 (defun play ()
   (let ((board (make-array '(3 3) :initial-element '_))
         (turn 'X)
@@ -35,6 +46,7 @@
       (format t "~A " (aref arr row col)))
     (format t "~%")))
 
+;;; use more loop syntax .. make the loops return values ...
 (defun terminalp (board row col)
   (let ((color (aref board row col)))
     (when (equal color '_)
