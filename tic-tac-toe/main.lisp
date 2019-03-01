@@ -34,6 +34,7 @@ generalize to wuziqi
        (< col 3)))
 
 (defun move (row col board turn)
+  ;; TODO ... check for invalid input, printout doesn't show
   (let ((color (aref board row col)))
     (if (and (in-bounds row col)
              (equal color '_))
@@ -46,25 +47,28 @@ generalize to wuziqi
       (format t "~A " (aref arr row col)))
     (format t "~%")))
 
-;;; use more loop syntax .. make the loops return values ...
+;; so i guess assignment is like iterating over a list...
+;; and then binding variables to pass to a function called once for ea var in list
+;; whose result is collected over and over
+;; lets try haskell'ing this ...
+;; how to apply the closures? ch 6 on lisp ..
 (defun terminalp (board row col)
   (let ((color (aref board row col)))
     (when (equal color '_)
       (return-from terminalp nil))
-    (loop for (ur uc) in '((0 1) (1 1) (1 0) (1 -1))
-          do (let ((length 1))
-               (loop for coeff in '(1 -1)
-                     do (let ((dr (* coeff ur))
-                              (dc (* coeff uc)))
-                          (do ((nr (+ row dr) (+ nr dr))
-                               (nc (+ col dc) (+ nc dc)))
-                              ((not (and (in-bounds nr nc)
-                                         (equal color (aref board nr nc)))))
-                            (incf length)))
-                        (when (= length 3)
-                          (return-from terminalp t))))))
-  nil)
+    (loop
+      for (ur uc) in '((0 1) (1 1) (1 0) (1 -1))
+      for in-a-row = (+ 1 (loop for coeff in '(1 -1)
+                                for dr = (* coeff ur)
+                                for dc = (* coeff uc)
+                                sum (loop for nr = (+ row dr) then (+ nr dr)
+                                          for nc = (+ col dc) then (+ nc dc)
+                                          while (and (in-bounds nr nc)
+                                                     (equal color (aref board nr nc)))
+                                          count nr)))
+      while (< in-a-row 3) finally (return (= in-a-row 3)))))
 
+;;; add more test cases to this ... add func for showing result on each one
 (defun test-terminalp ()
   (let ((board (make-array '(3 3) :initial-element '_)))
     (labels ((set-cell (row col val)
